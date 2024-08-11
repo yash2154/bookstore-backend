@@ -6,32 +6,34 @@ const dotenv = require("dotenv");
 
 const app = express();
 dotenv.config();
+
+// Middleware
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.ALLOW_ORIGIN,
+    origin: process.env.ALLOW_ORIGIN, // Ensure this is a valid URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
   })
 );
 
-app.get("/", async (request, response) => {
-  return response.status(200).json({ message: "welcome to bookstore api" });
+// Basic route
+app.get("/", async (req, res) => {
+  return res.status(200).json({ message: "Welcome to the bookstore API" });
 });
 
-// book router
+// Book routes
 app.use("/books", bookRoute);
 
 const URL = process.env.DATABASE_URL;
-const dbname = "bookstore";
 mongoose
-  .connect(`${URL}/${dbname}`)
+  .connect(URL) // Added options for better connection handling
   .then(() => {
-    console.log("app is connected to database");
+    console.log("App is connected to the database");
     app.listen(5555, () => {
-      console.log("app is listening");
+      console.log("App is listening on port 5555");
     });
   })
   .catch((error) => {
-    console.log(error.message);
+    console.error("Database connection error:", error.message);
   });
